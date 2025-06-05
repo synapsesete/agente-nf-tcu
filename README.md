@@ -17,14 +17,19 @@ Por exemplo: Qual é o fornecedor que teve maior montante recebido? Qual item te
 ---
 title: NF TCU
 ---
+
 classDiagram
-    note "Notas Fiscais TCU"
 
     NotaFiscal "*" --> Emitente : Emissor
-    Emitente "*" --> Município : Origem
+    ItemNotaFiscal "*" --* NotaFiscal
+    ItemNotaFiscal "*" --> TipoProduto
+    Emitente "*" --> Município : Municipio de Origem
     NotaFiscal "*" --> Destinatário : Receptor
-    Destinatário "*" --> Município : Origem
-    Destinatário ..> DestinoOperacao
+    Destinatário "*" --> Município : Municipio de Origem
+    NotaFiscal ..> DestinoOperacao
+    Destinatário ..> IndicadorIE
+    NotaFiscal ..> ConsumidorFinal
+    NotaFiscal ..> PresencaDoComprador
 
     class NotaFiscal {
         <<Entity>>
@@ -37,6 +42,25 @@ classDiagram
         - String eventoMaisRecente
         - Date dataHoraEventoMaisRecente
         - DestinoOperacao destinoOperacao
+        - ConsumidorFinal consumidorFinal
+        - PresencaDoComprador presencaDoComprador
+        - float Valor
+    }
+
+    class ItemNotaFiscal {
+        - int numeroProduto
+        - String descricaoProdutoServico
+        - int CFOP
+        - float Quantidade
+        - String Unidade
+        - Float valorUnitario
+        -/Float valorTotal
+    }
+
+    class TipoProduto {
+        <<Entity>>
+        - String codigoNCMSH
+        - String NCMSH
     }
 
     class Município {
@@ -56,15 +80,37 @@ classDiagram
         <<Entity>>
         - String CNPJ
         - String nome
-        - DestinoOperacao indicadorIE
+        - IndicadorIE indicadorIE
     }
 
-    class DestinoOperacao {
+    class IndicadorIE {
         <<Enumeration>>
         - CONTRIBUINTE_ISENTO
         - NAO_CONTRIBUINTE
         - CONTRIBUINTE_ICMS
+        - DF
 
+    }
+
+    class DestinoOperacao {
+        <<Enumeration>>
+        - OPERACAO_INTERESTADUAL
+        - OPERACAO_INTERNA
+        - CONTRIBUINTE_ISENTO
+    }
+
+    class ConsumidorFinal {
+        <<Enumeration>>
+        - CONSUMIDOR_FINAL
+        - NORMAL
+    }
+
+    class PresencaDoComprador {
+        <<Enumeration>>
+        - NAO_SE_APLICA
+        - OPERACAO_PRESENCIAL
+        - OPERECAO_NAO_PRESENCIAL_PELA_INTERNET
+        - OPERACAO_NAO_PRESENCIAL_OUTROS
     }
 
 ```
