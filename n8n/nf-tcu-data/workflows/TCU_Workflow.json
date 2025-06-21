@@ -1,0 +1,261 @@
+{
+  "name": "TCU Workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "public": true,
+        "initialMessages": "Olá! 👋\nMeu nome é Sarneyman. O que posso responder sobre as Notas Fiscais da TCU de jan/24?",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -240,
+        -40
+      ],
+      "id": "237e0e74-7411-4069-aa7f-bd722b75eedf",
+      "name": "When chat message received",
+      "webhookId": "a7bce04c-12f8-4683-80e0-cb4229166d60"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "{{ $json.text }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        420,
+        -20
+      ],
+      "id": "e1f9f264-f141-4e4d-8d56-019d6f243060",
+      "name": "Postgres",
+      "credentials": {
+        "postgres": {
+          "id": "5PbpIn3dPyvbY8IU",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Você é um agente especializado em comunicação clara e natural com usuários de sistemas de análise de dados.\n\nSua tarefa é gerar uma resposta textual objetiva e amigável com base em:\n1 - A pergunta feita pelo usuário;\n2 - O resultado exato da consulta, que pode conter nomes, números ou ambos.\n\n---\nPergunta do usuário: {{ $('When chat message received').item.json.chatInput }}\n\nResultado da consulta (formato JSON): {{ JSON.stringify($json) }}\n\nRegras obrigatórias para gerar a resposta:\n- Responda diretamente à pergunta com base somente nos dados fornecidos.\n- Nunca invente informações ou faça suposições.",
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        640,
+        -20
+      ],
+      "id": "c4c92751-6a1b-4a5f-9f6e-e47b4216023e",
+      "name": "SQL to Portuguese LLM Chain"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "You are an SQL assistant for Postgresql.\n\nYour task is to translate questions written in Portuguese language into a valid and efficient SQL query for a single table named 'notas_fiscais'.\n\nHere is the table schema:\n\nCREATE TABLE IF NOT EXISTS \"notas_fiscais\" (\n \"id\" serial primary key,\n\t\"chave_de_acesso\" VARCHAR, \n\t\"modelo\" VARCHAR, \n\t\"serie\" DECIMAL, \n\t\"numero\" DECIMAL, \n\t\"natureza\" VARCHAR, \n\t\"data_emissao\" TIMESTAMP WITHOUT TIME ZONE, \n\t\"evento_mais_recente\" VARCHAR, \n\t\"timestamp_mais_recente\" TIMESTAMP WITHOUT TIME ZONE, \n\t\"cpfcnpj_emitente\" VARCHAR, \n\t\"razao_social_emitente\" VARCHAR, \n\t\"inscricao_estadual_emitente\" DECIMAL, \n\t\"uf_emitente\" VARCHAR, \n\t\"municipio_emitente\" VARCHAR, \n\t\"cnpj_destinatario\" DECIMAL, \n\t\"nome_destinatario\" VARCHAR, \n\t\"uf_destinatario\" VARCHAR, \n\t\"indicador_ie_destinatario\" VARCHAR, \n\t\"destino_operacao\" VARCHAR, \n\t\"consumidor_final\" VARCHAR, \n\t\"presenca_comprador\" VARCHAR, \n\t\"valor_nota_fiscal\" DECIMAL(10,2), \n\t\"numero_produto\" DECIMAL, \n\t\"descricao_produto_servico\" VARCHAR, \n\t\"codigo_ncm_sh\" DECIMAL NOT NULL, \n\t\"ncm_sh_tipo_produto\" VARCHAR, \n\t\"cfop\" DECIMAL, \n\t\"quantidade\" DECIMAL, \n\t\"unidade\" VARCHAR, \n\t\"valor_unitario\" DECIMAL(10,2), \n\t\"valor_total\" DECIMAL(10,2)\n);\n\nSemantic mapping:\n\n- \"nota fiscal\", \"nota\", \"NF\" -> refers to \"chave_de_acesso\";\n- \"valor da nota fiscal\", \"valor da nf\" -> refers to \"valor_nota_fiscal\";\n- \"empresa\", \"cnpj\", \"cpf\", \"emitente\" -> refers to  \"cpfcnpj_emitente\";\n- \"produto\", \"serviço\" -> refers to \"descricao_produto_servico\";\n- \"quem vendeu mais\" -> analyze \"razao_social_emitente\" with SUM(valor_nota_fiscal);\n\nImportant Logic:\n\n- When counting invoices (\"notas fiscais\"), always use COUNT(distinct chave_acesso);\n- When summing invoices (\"valor total notas fiscais\"), always use SUM(distinct valor_nota_fiscal) grouping by GROUP BY (chave_acesso);\n- Every SQL statement **must start with SELECT** - never omit it.\n- Only return one single SQL query per answer.\n\nStrict Instructions:\n- All data are in the single table. Do not use JOINS!\n- Do not include SQL comments (eg. -- or #).\n- Do not use Markdown formatting (eg. ```).\n- Respond with **only one SQL Query**, clean and ready to execute - no explanations.\n\n- Only one string with SQL query per question with no special characters.\n\n- Do not try to assume anything.\n\nUser question (in Portuguese):\n\n{{ $json.chatInput }}",
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        60,
+        -20
+      ],
+      "id": "c8dce7a8-789d-4263-9b98-f07a75a36a8e",
+      "name": "Portuguese to SQL LLM Chain"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        280,
+        -220
+      ],
+      "id": "193e2d17-39ea-4d3b-a228-d615fe41c31e",
+      "name": "Base Populada"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "otE3Fl75YQDOfM4x",
+          "mode": "list",
+          "cachedResultName": "ETF Workflow"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        100,
+        -220
+      ],
+      "id": "f67560e1-d410-4111-8857-3143d69a512c",
+      "name": "Workflow ETF"
+    },
+    {
+      "parameters": {
+        "model": "duckdb-nsql:7b",
+        "options": {
+          "temperature": 0,
+          "topP": 1,
+          "repeatPenalty": 1
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        -20,
+        140
+      ],
+      "id": "3fe57b47-7a0c-4f16-ac2c-1ac50fca0b52",
+      "name": "Ollama Duckdb-nsql Model",
+      "credentials": {
+        "ollamaApi": {
+          "id": "xHuYe0MDGOs9IpBW",
+          "name": "Local Ollama service"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "mistral:latest",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        600,
+        140
+      ],
+      "id": "754a1cf9-1c4f-4fd3-b357-26e61da28968",
+      "name": "Ollama Mistral Model",
+      "credentials": {
+        "ollamaApi": {
+          "id": "xHuYe0MDGOs9IpBW",
+          "name": "Local Ollama service"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        1000,
+        -20
+      ],
+      "id": "9975a09a-4519-4644-b2f2-8383559e2df0",
+      "name": "Fim"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "Workflow ETF",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Portuguese to SQL LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres": {
+      "main": [
+        [
+          {
+            "node": "SQL to Portuguese LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Portuguese to SQL LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Postgres",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Workflow ETF": {
+      "main": [
+        [
+          {
+            "node": "Base Populada",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Duckdb-nsql Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Portuguese to SQL LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Mistral Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "SQL to Portuguese LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SQL to Portuguese LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Fim",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "d89e701c-d3c9-4514-a442-fd9b91a27594",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "558d88703fb65b2d0e44613bc35916258b0f0bf983c5d4730c00c424b77ca36a"
+  },
+  "id": "IoKyRnusyiwkqkVY",
+  "tags": []
+}
