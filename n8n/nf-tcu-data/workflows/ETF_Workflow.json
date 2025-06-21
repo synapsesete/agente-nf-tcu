@@ -24,7 +24,7 @@
       "type": "n8n-nodes-base.github",
       "typeVersion": 1.1,
       "position": [
-        -840,
+        -880,
         120
       ],
       "id": "13d10730-d778-4e1c-ada9-0158df0669bb",
@@ -682,9 +682,12 @@
   },
   "active": false,
   "settings": {
-    "executionOrder": "v1"
+    "executionOrder": "v1",
+    "timezone": "America/Sao_Paulo",
+    "callerPolicy": "workflowsFromSameOwner",
+    "executionTimeout": -1
   },
-  "versionId": "665b8207-3fa2-43eb-a061-3a158f7c5380",
+  "versionId": "653e2c67-0164-4ddf-9c53-4e896f349086",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "558d88703fb65b2d0e44613bc35916258b0f0bf983c5d4730c00c424b77ca36a"

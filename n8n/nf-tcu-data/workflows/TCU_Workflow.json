@@ -107,28 +107,15 @@
       "name": "Workflow ETF"
     },
     {
-      "parameters": {
-        "model": "duckdb-nsql:7b",
-        "options": {
-          "temperature": 0,
-          "topP": 1,
-          "repeatPenalty": 1
-        }
-      },
-      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
       "typeVersion": 1,
       "position": [
-        -20,
-        140
+        1000,
+        -20
       ],
-      "id": "3fe57b47-7a0c-4f16-ac2c-1ac50fca0b52",
-      "name": "Ollama Duckdb-nsql Model",
-      "credentials": {
-        "ollamaApi": {
-          "id": "xHuYe0MDGOs9IpBW",
-          "name": "Local Ollama service"
-        }
-      }
+      "id": "9975a09a-4519-4644-b2f2-8383559e2df0",
+      "name": "Fim"
     },
     {
       "parameters": {
@@ -142,7 +129,7 @@
         140
       ],
       "id": "754a1cf9-1c4f-4fd3-b357-26e61da28968",
-      "name": "Ollama Mistral Model",
+      "name": "Ollama Model 2",
       "credentials": {
         "ollamaApi": {
           "id": "xHuYe0MDGOs9IpBW",
@@ -151,15 +138,28 @@
       }
     },
     {
-      "parameters": {},
-      "type": "n8n-nodes-base.noOp",
+      "parameters": {
+        "model": "mistral:latest",
+        "options": {
+          "temperature": 0,
+          "topP": 1,
+          "repeatPenalty": 1
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
       "typeVersion": 1,
       "position": [
-        1000,
-        -20
+        -20,
+        140
       ],
-      "id": "9975a09a-4519-4644-b2f2-8383559e2df0",
-      "name": "Fim"
+      "id": "3fe57b47-7a0c-4f16-ac2c-1ac50fca0b52",
+      "name": "Ollama Model 1",
+      "credentials": {
+        "ollamaApi": {
+          "id": "xHuYe0MDGOs9IpBW",
+          "name": "Local Ollama service"
+        }
+      }
     }
   ],
   "pinData": {},
@@ -213,28 +213,6 @@
         ]
       ]
     },
-    "Ollama Duckdb-nsql Model": {
-      "ai_languageModel": [
-        [
-          {
-            "node": "Portuguese to SQL LLM Chain",
-            "type": "ai_languageModel",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Ollama Mistral Model": {
-      "ai_languageModel": [
-        [
-          {
-            "node": "SQL to Portuguese LLM Chain",
-            "type": "ai_languageModel",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "SQL to Portuguese LLM Chain": {
       "main": [
         [
@@ -245,13 +223,35 @@
           }
         ]
       ]
+    },
+    "Ollama Model 2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "SQL to Portuguese LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Model 1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Portuguese to SQL LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
-  "active": true,
+  "active": false,
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "d89e701c-d3c9-4514-a442-fd9b91a27594",
+  "versionId": "a0b21e73-286e-467d-a59e-234c1735f3f2",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "558d88703fb65b2d0e44613bc35916258b0f0bf983c5d4730c00c424b77ca36a"
