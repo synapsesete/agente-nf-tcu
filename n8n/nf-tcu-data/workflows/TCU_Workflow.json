@@ -21,7 +21,9 @@
       "parameters": {
         "operation": "executeQuery",
         "query": "{{ $json.text }}",
-        "options": {}
+        "options": {
+          "replaceEmptyStrings": true
+        }
       },
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
@@ -31,6 +33,7 @@
       ],
       "id": "e1f9f264-f141-4e4d-8d56-019d6f243060",
       "name": "Postgres",
+      "alwaysOutputData": false,
       "credentials": {
         "postgres": {
           "id": "5PbpIn3dPyvbY8IU",
@@ -41,7 +44,7 @@
     {
       "parameters": {
         "promptType": "define",
-        "text": "=Você é um agente especializado em comunicação clara e natural com usuários de sistemas de análise de dados.\n\nSua tarefa é gerar uma resposta textual objetiva e amigável com base em:\n1 - A pergunta feita pelo usuário;\n2 - O resultado exato da consulta, que pode conter nomes, números ou ambos.\n\n---\nPergunta do usuário: {{ $('When chat message received').item.json.chatInput }}\n\nResultado da consulta (formato JSON): {{ JSON.stringify($json) }}\n\nRegras obrigatórias para gerar a resposta:\n- Responda diretamente à pergunta com base somente nos dados fornecidos.\n- Nunca invente informações ou faça suposições.",
+        "text": "=Você é um agente especializado em comunicação clara e natural com usuários de sistemas de análise de dados.\n\nSua tarefa é gerar uma resposta textual objetiva e amigável com base em:\n1 - A pergunta feita pelo usuário;\n2 - O resultado exato da consulta, que pode conter nomes, números ou ambos.\n\n---\nPergunta do usuário: {{ $('When chat message received').item.json.chatInput }}\n\nResultado da consulta (formato JSON): {{ JSON.stringify($json) }}\n\nRegras obrigatórias para gerar a resposta:\n- Responda diretamente à pergunta com base somente nos dados fornecidos.\n- Nunca invente informações ou faça suposições.\n- Valores resultantes das colunas \"valor_total\" ou \"valor_nota_fiscal\" deverão estar formatadas em dinheiro real brasileiro.",
         "batching": {}
       },
       "type": "@n8n/n8n-nodes-langchain.chainLlm",
@@ -56,7 +59,7 @@
     {
       "parameters": {
         "promptType": "define",
-        "text": "You are an SQL assistant for Postgresql.\n\nYour task is to translate questions written in Portuguese language into a valid and efficient SQL query for a single table named 'notas_fiscais'.\n\nHere is the table schema:\n\nCREATE TABLE IF NOT EXISTS \"notas_fiscais\" (\n \"id\" serial primary key,\n\t\"chave_de_acesso\" VARCHAR, \n\t\"modelo\" VARCHAR, \n\t\"serie\" DECIMAL, \n\t\"numero\" DECIMAL, \n\t\"natureza\" VARCHAR, \n\t\"data_emissao\" TIMESTAMP WITHOUT TIME ZONE, \n\t\"evento_mais_recente\" VARCHAR, \n\t\"timestamp_mais_recente\" TIMESTAMP WITHOUT TIME ZONE, \n\t\"cpfcnpj_emitente\" VARCHAR, \n\t\"razao_social_emitente\" VARCHAR, \n\t\"inscricao_estadual_emitente\" DECIMAL, \n\t\"uf_emitente\" VARCHAR, \n\t\"municipio_emitente\" VARCHAR, \n\t\"cnpj_destinatario\" DECIMAL, \n\t\"nome_destinatario\" VARCHAR, \n\t\"uf_destinatario\" VARCHAR, \n\t\"indicador_ie_destinatario\" VARCHAR, \n\t\"destino_operacao\" VARCHAR, \n\t\"consumidor_final\" VARCHAR, \n\t\"presenca_comprador\" VARCHAR, \n\t\"valor_nota_fiscal\" DECIMAL(10,2), \n\t\"numero_produto\" DECIMAL, \n\t\"descricao_produto_servico\" VARCHAR, \n\t\"codigo_ncm_sh\" DECIMAL NOT NULL, \n\t\"ncm_sh_tipo_produto\" VARCHAR, \n\t\"cfop\" DECIMAL, \n\t\"quantidade\" DECIMAL, \n\t\"unidade\" VARCHAR, \n\t\"valor_unitario\" DECIMAL(10,2), \n\t\"valor_total\" DECIMAL(10,2)\n);\n\nSemantic mapping:\n\n- \"nota fiscal\", \"nota\", \"NF\" -> refers to \"chave_de_acesso\";\n- \"valor da nota fiscal\", \"valor da nf\" -> refers to \"valor_nota_fiscal\";\n- \"empresa\", \"cnpj\", \"cpf\", \"emitente\" -> refers to  \"cpfcnpj_emitente\";\n- \"produto\", \"serviço\" -> refers to \"descricao_produto_servico\";\n- \"quem vendeu mais\" -> analyze \"razao_social_emitente\" with SUM(valor_nota_fiscal);\n\nImportant Logic:\n\n- When counting invoices (\"notas fiscais\"), always use COUNT(distinct chave_acesso);\n- When summing invoices (\"valor total notas fiscais\"), always use SUM(distinct valor_nota_fiscal) grouping by GROUP BY (chave_acesso);\n- Every SQL statement **must start with SELECT** - never omit it.\n- Only return one single SQL query per answer.\n\nStrict Instructions:\n- All data are in the single table. Do not use JOINS!\n- Do not include SQL comments (eg. -- or #).\n- Do not use Markdown formatting (eg. ```).\n- Respond with **only one SQL Query**, clean and ready to execute - no explanations.\n\n- Only one string with SQL query per question with no special characters.\n\n- Do not try to assume anything.\n\nUser question (in Portuguese):\n\n{{ $json.chatInput }}",
+        "text": "=You are an SQL assistant for PostgreSQL.\n\nYour task is to convert questions written in Portuguese into valid and efficient SQL queries for a single table named `notas_fiscais`.\n\nThis table contains the following schema:\n\nCREATE TABLE IF NOT EXISTS \"notas_fiscais\" (\n    \"id\" serial primary key,\n\t\"chave_de_acesso\" TEXT NOT NULL, \n\t\"modelo\" TEXT NOT NULL, \n\t\"serie\" TEXT NOT NULL, \n\t\"numero\" TEXT NOT NULL, \n\t\"natureza\" TEXT NOT NULL, \n\t\"data_emissao\" TIMESTAMP WITHOUT TIME ZONE, \n\t\"evento_mais_recente\" TEXT NOT NULL, \n\t\"timestamp_mais_recente\" TIMESTAMP WITHOUT TIME ZONE, \n\t\"cpfcnpj_emitente\" TEXT NOT NULL, \n\t\"razao_social_emitente\" TEXT NOT NULL, \n\t\"inscricao_estadual_emitente\" TEXT NOT NULL, \n\t\"uf_emitente\" TEXT NOT NULL, \n\t\"municipio_emitente\" TEXT NOT NULL, \n\t\"cnpj_destinatario\" TEXT NOT NULL, \n\t\"nome_destinatario\" TEXT NOT NULL, \n\t\"uf_destinatario\" TEXT NOT NULL, \n\t\"indicador_ie_destinatario\" TEXT NOT NULL, \n\t\"destino_operacao\" TEXT NOT NULL, \n\t\"consumidor_final\" TEXT NOT NULL, \n\t\"presenca_comprador\" TEXT NOT NULL, \n\t\"valor_nota_fiscal\" DECIMAL(10,2) NOT NULL, \n\t\"numero_produto\" TEXT NOT NULL, \n\t\"descricao_produto_servico\" TEXT NOT NULL, \n\t\"codigo_ncm_sh\" TEXT NOT NULL, \n\t\"ncm_sh_tipo_produto\" TEXT, \n\t\"cfop\" TEXT NOT NULL, \n\t\"quantidade\" DECIMAL(10,2) NOT NULL, \n\t\"unidade\" TEXT NOT NULL, \n\t\"valor_unitario\" DECIMAL(10,2) NOT NULL, \n\t\"valor_total\" DECIMAL(10,2) NOT NULL\n);\n\n🧠 Semantic mapping:\n- \"nota fiscal\", \"nota\", \"nfs\", \"NF\" → refers to unique invoices identified by `chave_de_acesso`\n- \"valor da nota\", \"valor total da nota fiscal\" → refers to `valor_nota_fiscal`\n- \"produto\" → refers to `descricao_produto_servico`\n- \"quem vendeu mais\" → analyze `razao_social_emitente` with `SUM(valor_nota_fiscal)`\n\n🔁 Important logic:\n- When counting invoices (\"notas fiscais\"), always use: COUNT(DISTINCT chave_de_acesso)\n- Use GROUP BY clause if using aggregating functions (SUM,COUNT).\n- Every SQL statement **must start with SELECT** — never omit it.\n- Every SQL statement must contain FROM clause with the table name used in order to fetch results.\n- Every SQL statement **must have FROM notas_fiscais** — never omit it.\n- Only return one single SQL query per answer.\n\n⚠️ Strict instructions:\n- All data is in a **single table**. Do not use JOINs.\n- Use **only the columns listed above**. Do not invent or assume columns.\n- Do not include SQL comments (e.g. `-- ...`).\n- Do not use Markdown formatting (e.g. triple backticks).\n- Respond with **only the SQL query**, clean and ready to execute — no explanations.\n\nUser question (in Portuguese):  \n{{ $json.chatInput }}\n",
         "batching": {}
       },
       "type": "@n8n/n8n-nodes-langchain.chainLlm",
@@ -139,7 +142,7 @@
     },
     {
       "parameters": {
-        "model": "mistral:latest",
+        "model": "llama3:8b",
         "options": {
           "temperature": 0,
           "topP": 1,
@@ -251,7 +254,7 @@
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "a0b21e73-286e-467d-a59e-234c1735f3f2",
+  "versionId": "4df71123-1bb4-48dc-9dbb-f54b7e89feaf",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "558d88703fb65b2d0e44613bc35916258b0f0bf983c5d4730c00c424b77ca36a"

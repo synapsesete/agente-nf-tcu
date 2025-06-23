@@ -188,7 +188,7 @@
     {
       "parameters": {
         "operation": "executeQuery",
-        "query": "DROP TABLE IF EXISTS \"notas_fiscais\";\nCREATE TABLE IF NOT EXISTS \"notas_fiscais\" (\n    \"id\" serial primary key,\n\t\"chave_de_acesso\" VARCHAR NOT NULL, \n\t\"modelo\" VARCHAR NOT NULL, \n\t\"serie\" DECIMAL NOT NULL, \n\t\"numero\" DECIMAL NOT NULL, \n\t\"natureza\" VARCHAR NOT NULL, \n\t\"data_emissao\" TIMESTAMP WITHOUT TIME ZONE, \n\t\"evento_mais_recente\" VARCHAR NOT NULL, \n\t\"timestamp_mais_recente\" TIMESTAMP WITHOUT TIME ZONE, \n\t\"cpfcnpj_emitente\" VARCHAR NOT NULL, \n\t\"razao_social_emitente\" VARCHAR NOT NULL, \n\t\"inscricao_estadual_emitente\" DECIMAL NOT NULL, \n\t\"uf_emitente\" VARCHAR NOT NULL, \n\t\"municipio_emitente\" VARCHAR NOT NULL, \n\t\"cnpj_destinatario\" DECIMAL NOT NULL, \n\t\"nome_destinatario\" VARCHAR NOT NULL, \n\t\"uf_destinatario\" VARCHAR NOT NULL, \n\t\"indicador_ie_destinatario\" VARCHAR NOT NULL, \n\t\"destino_operacao\" VARCHAR NOT NULL, \n\t\"consumidor_final\" VARCHAR NOT NULL, \n\t\"presenca_comprador\" VARCHAR NOT NULL, \n\t\"valor_nota_fiscal\" DECIMAL NOT NULL, \n\t\"numero_produto\" DECIMAL NOT NULL, \n\t\"descricao_produto_servico\" VARCHAR NOT NULL, \n\t\"codigo_ncm_sh\" DECIMAL NOT NULL, \n\t\"ncm_sh_tipo_produto\" VARCHAR, \n\t\"cfop\" DECIMAL NOT NULL, \n\t\"quantidade\" DECIMAL NOT NULL, \n\t\"unidade\" VARCHAR NOT NULL, \n\t\"valor_unitario\" DECIMAL NOT NULL, \n\t\"valor_total\" DECIMAL NOT NULL\n);\n",
+        "query": "DROP TABLE IF EXISTS \"notas_fiscais\";\nCREATE TABLE IF NOT EXISTS \"notas_fiscais\" (\n    \"id\" serial primary key,\n\t\"chave_de_acesso\" TEXT NOT NULL, \n\t\"modelo\" TEXT NOT NULL, \n\t\"serie\" TEXT NOT NULL, \n\t\"numero\" TEXT NOT NULL, \n\t\"natureza\" TEXT NOT NULL, \n\t\"data_emissao\" TIMESTAMP WITHOUT TIME ZONE, \n\t\"evento_mais_recente\" TEXT NOT NULL, \n\t\"timestamp_mais_recente\" TIMESTAMP WITHOUT TIME ZONE, \n\t\"cpfcnpj_emitente\" TEXT NOT NULL, \n\t\"razao_social_emitente\" TEXT NOT NULL, \n\t\"inscricao_estadual_emitente\" TEXT NOT NULL, \n\t\"uf_emitente\" TEXT NOT NULL, \n\t\"municipio_emitente\" TEXT NOT NULL, \n\t\"cnpj_destinatario\" TEXT NOT NULL, \n\t\"nome_destinatario\" TEXT NOT NULL, \n\t\"uf_destinatario\" TEXT NOT NULL, \n\t\"indicador_ie_destinatario\" TEXT NOT NULL, \n\t\"destino_operacao\" TEXT NOT NULL, \n\t\"consumidor_final\" TEXT NOT NULL, \n\t\"presenca_comprador\" TEXT NOT NULL, \n\t\"valor_nota_fiscal\" DECIMAL(10,2) NOT NULL, \n\t\"numero_produto\" TEXT NOT NULL, \n\t\"descricao_produto_servico\" TEXT NOT NULL, \n\t\"codigo_ncm_sh\" TEXT NOT NULL, \n\t\"ncm_sh_tipo_produto\" TEXT, \n\t\"cfop\" TEXT NOT NULL, \n\t\"quantidade\" DECIMAL(10,2) NOT NULL, \n\t\"unidade\" TEXT NOT NULL, \n\t\"valor_unitario\" DECIMAL(10,2) NOT NULL, \n\t\"valor_total\" DECIMAL(10,2) NOT NULL\n);\n",
         "options": {}
       },
       "type": "n8n-nodes-base.postgres",
@@ -253,15 +253,27 @@
             "valor_unitario": "={{ $json[\"VALOR UNITÁRIO\"] }}",
             "valor_total": "={{ $json[\"VALOR TOTAL\"] }}"
           },
-          "matchingColumns": [],
+          "matchingColumns": [
+            "id"
+          ],
           "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
             {
               "id": "chave_de_acesso",
               "displayName": "chave_de_acesso",
               "required": true,
               "defaultMatch": false,
               "display": true,
-              "type": "number",
+              "type": "string",
               "canBeUsedToMatch": true
             },
             {
@@ -687,7 +699,7 @@
     "callerPolicy": "workflowsFromSameOwner",
     "executionTimeout": -1
   },
-  "versionId": "653e2c67-0164-4ddf-9c53-4e896f349086",
+  "versionId": "c23dc122-48da-45e1-a787-01cb12fcfa98",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "558d88703fb65b2d0e44613bc35916258b0f0bf983c5d4730c00c424b77ca36a"
