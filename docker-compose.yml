@@ -77,6 +77,7 @@ services:
       - "n8n import:credentials --separate --input=/nf-tcu-data/credentials && n8n import:workflow --separate --input=/nf-tcu-data/workflows"
     volumes:
       - ./n8n/nf-tcu-data:/nf-tcu-data
+      - ./assets:/assets
     depends_on:
       postgres:
         condition: service_healthy
